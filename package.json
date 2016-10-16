@@ -25,6 +25,7 @@
   "author": "Ben Rubin",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.16.0",
     "babel-helper-plugin-test-runner": "^6.8.0"
   },
   "dependencies": {
