@@ -1,18 +1,16 @@
-"use strict";
-
 var create = require('babel-runtime/core-js/object/create');
 var babelTemplate = require('babel-template');
 
 
+var buildDefine = babelTemplate('angular.module("test").factory(MODULE_NAME, [SOURCES, FACTORY]);');
+var buildFactory = babelTemplate('(function (PARAMS) {var module = {exports:{}};var exports = module.exports;BODY;return module.exports;})');
 
-var buildAngularModule = babelTemplate('angular.module("test").factory(MODULE_NAME, [SOURCES, FACTORY]);');
-var buildAngularFactory = babelTemplate('(function (PARAMS) {var module = {exports: {}};var exports = module.exports;BODY;return module.exports;});');
 
 module.exports = function (ref) {
   var types = ref.types;
-  var angularVisitor = {
-    ReferencedIdentifier: ReferencedIdentifier,
+  var amdVisitor = {
     CallExpression: CallExpression,
+    ReferencedIdentifier: ReferencedIdentifier,
     VariableDeclarator: VariableDeclarator
   };
 
@@ -20,7 +18,7 @@ module.exports = function (ref) {
     inherits: require("babel-plugin-transform-es2015-modules-commonjs"),
     pre: pre,
     visitor: {
-      program: {
+      Program: {
         exit: exit
       }
     }
@@ -29,22 +27,25 @@ module.exports = function (ref) {
 
 
 
+
 function pre() {
+  // source strings
   this.sources = [];
   this.sourceNames = create(null);
+
+  // bare sources
   this.bareSources = [];
   this.hasExports = false;
   this.hasModule = false;
 }
 
-
 function exit(path, state) {
   var self = this;
 
-  if (self.ran) { return; }
-  seld.ran = true;
+  if (self.ran) return;
+  self.ran = true;
 
-  path.traverse(angularVisitor, self);
+  path.traverse(amdVisitor, self);
 
   var params = self.sources.map(function (source) {
     return source[0];
@@ -60,6 +61,7 @@ function exit(path, state) {
   var moduleName = camelToDash(state.file.opts.filename.slice(state.file.opts.filename.lastIndexOf('/')+1, state.file.opts.filename.length-3));
   if (moduleName) moduleName = t.stringLiteral(moduleName);
 
+
   var node = path.node;
   var factory = buildFactory({
     PARAMS: params,
@@ -74,6 +76,13 @@ function exit(path, state) {
 }
 
 
+
+function CallExpression(path) {
+  if (!isValidRequireCall(path)) return;
+  this.bareSources.push(path.node.arguments[0]);
+  path.remove();
+}
+
 function ReferencedIdentifier(ref) {
   var node = ref.node;
   var scope = ref.scope;
@@ -85,12 +94,6 @@ function ReferencedIdentifier(ref) {
   if (node.name === "module" && !scope.getBinding("module")) {
     this.hasModule = true;
   }
-}
-
-function CallExpression(path) {
-  if (!isValidRequireCall(path)) return;
-  this.bareSources.push(path.node.arguments[0]);
-  path.remove();
 }
 
 function VariableDeclarator(path) {
