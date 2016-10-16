@@ -1,0 +1,35 @@
+{
+  "name": "babel-plugin-commonjs-to-angular-1x",
+  "version": "0.0.0",
+  "description": "A Babel plugin to convert commonjs(node) modules to angular 1.x modules",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:B-3PO/babel-plugin-commonjs-to-angular-1x.git"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel src --out-dir lib --copy-files",
+    "clean": "rm -rf lib",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "es6",
+    "es2015",
+    "babel",
+    "babel-plugin",
+    "angular",
+    "commonjs",
+    "module",
+    "convert"
+  ],
+  "author": "Ben Rubin",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-helper-plugin-test-runner": "^6.8.0"
+  },
+  "dependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0",
+    "babel-runtime": "^6.0.0",
+    "babel-template": "^6.8.0"
+  }
+}
