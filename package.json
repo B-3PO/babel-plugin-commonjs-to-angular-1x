@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-commonjs-to-angular-1x",
-  "version": "0.0.1-0",
+  "version": "0.0.1",
   "description": "A Babel plugin to convert commonjs(node) modules to angular 1.x modules",
   "repository": {
     "type": "git",
